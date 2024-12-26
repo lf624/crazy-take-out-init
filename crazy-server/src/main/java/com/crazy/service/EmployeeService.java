@@ -2,7 +2,9 @@ package com.crazy.service;
 
 import com.crazy.dto.EmployeeDTO;
 import com.crazy.dto.EmployeeLoginDTO;
+import com.crazy.dto.EmployeePageQueryDTO;
 import com.crazy.entity.Employee;
+import com.crazy.result.PageResult;
 
 
 public interface EmployeeService {
@@ -15,4 +17,6 @@ public interface EmployeeService {
     Employee login(EmployeeLoginDTO employeeLoginDTO);
 
     void save(EmployeeDTO employeeDTO);
+
+    PageResult<Employee> page(EmployeePageQueryDTO employeePageQueryDTO);
 }

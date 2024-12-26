@@ -31,6 +31,7 @@
 
         <commons.lang>3.17.0</commons.lang>
         <druid>1.2.24</druid>
+        <pagehelper>2.1.0</pagehelper>
         <knife4j>4.5.0</knife4j>
 
         <jjwt>0.12.6</jjwt>
@@ -68,7 +69,11 @@
                 <version>${druid}</version>
             </dependency>
             <!-- page helper 基于MyBatis的分页查询工具-->
-            <!-- ... -->
+            <dependency>
+                <groupId>com.github.pagehelper</groupId>
+                <artifactId>pagehelper-spring-boot-starter</artifactId>
+                <version>${pagehelper}</version>
+            </dependency>
             <!-- swagger3文档增强 -->
             <dependency>
                 <groupId>com.github.xiaoymin</groupId>

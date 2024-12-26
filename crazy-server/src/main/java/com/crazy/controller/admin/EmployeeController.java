@@ -4,11 +4,13 @@ import com.crazy.constant.JwtClaimsConstant;
 import com.crazy.context.BaseContext;
 import com.crazy.dto.EmployeeDTO;
 import com.crazy.dto.EmployeeLoginDTO;
+import com.crazy.dto.EmployeePageQueryDTO;
 import com.crazy.entity.Employee;
 import com.crazy.exception.AccountLockedException;
 import com.crazy.exception.AccountNotFoundException;
 import com.crazy.exception.PasswordErrorException;
 import com.crazy.properties.JwtProperties;
+import com.crazy.result.PageResult;
 import com.crazy.result.Result;
 import com.crazy.service.EmployeeService;
 import com.crazy.utils.JwtUtil;
@@ -17,10 +19,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -91,5 +90,13 @@ public class EmployeeController {
         log.info("newly add employee：{}",employeeDTO);
         employeeService.save(employeeDTO);
         return Result.success();
+    }
+
+    @GetMapping("/page")
+    @Operation(summary = "员工分页查询")
+    public Result<PageResult<Employee>> page(EmployeePageQueryDTO employeePageQueryDTO) {
+        log.info("employee page query: {}", employeePageQueryDTO);
+        PageResult<Employee> result = employeeService.page(employeePageQueryDTO);
+        return Result.success(result);
     }
 }

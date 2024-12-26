@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -20,6 +21,9 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
 
     @Autowired
     private JwtProperties jwtProperties;
+
+    @Value("${spring.profiles.active}")
+    private String currentProfile;
 
     /**
      * 校验 jwt
@@ -40,6 +44,13 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
 
         // 从请求头中获取令牌并验证
         String token = request.getHeader(jwtProperties.getAdminTokenName());
+
+        if(currentProfile.equals("dev") &&
+                token.equals("eyJhbGciOiJIUzI1NiJ9.eyJlbXBJZCI6MSwiZXhwIjoxNzM1MTgxNDE3fQ.hjn3upOT_8D7jb0LFMQBCt5oZY4BMfFxcyL7Fl_mZ18")) {
+            // 方便调试
+            BaseContext.setCurrentId(1L);
+            return true;
+        }
         try {
             log.info("jwt checkout: {}", token);
             Map<String, Object> claims = JwtUtil.parseJwt(jwtProperties.getAdminSecretKey(), token);
