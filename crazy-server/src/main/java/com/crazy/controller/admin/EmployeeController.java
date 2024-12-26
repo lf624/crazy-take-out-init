@@ -87,7 +87,7 @@ public class EmployeeController {
     @PostMapping
     @Operation(summary = "新增员工")
     public Result<String> save(@RequestBody EmployeeDTO employeeDTO) {
-        log.info("newly add employee：{}",employeeDTO);
+        log.info("newly add employee：{}", employeeDTO);
         employeeService.save(employeeDTO);
         return Result.success();
     }
@@ -98,5 +98,13 @@ public class EmployeeController {
         log.info("employee page query: {}", employeePageQueryDTO);
         PageResult<Employee> result = employeeService.page(employeePageQueryDTO);
         return Result.success(result);
+    }
+
+    @PostMapping("/status/{status}")
+    @Operation(summary = "启用或禁用员工账号")
+    public Result<String> startOrStop(@PathVariable Integer status, Long id) {
+        log.info("change employee id={} status={}", id, status);
+        employeeService.startOrStop(status, id);
+        return Result.success();
     }
 }

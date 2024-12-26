@@ -87,4 +87,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         List<Employee> record = page.getResult();
         return new PageResult<>(total, record);
     }
+
+    @Override
+    public void startOrStop(Integer status, Long id) {
+        Employee employee = Employee.builder()
+                .id(id)
+                .status(status)
+                .build();
+
+        employeeMapper.update(employee);
+    }
 }
