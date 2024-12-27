@@ -7,6 +7,7 @@
         <where>
             <!-- mybatis 动态sql语法，只有test满足时才会加入查询 -->
             <if test="name != null and name != ''">
+                <!-- 模糊匹配查询，name 字段的值只要包含传入参数 name 的内容就选中 -->
                 and name like concat('%', #{name}, '%')
             </if>
         </where>
