@@ -9,7 +9,7 @@ import java.io.Serializable;
 @Schema(description = "employee newly add DTO")
 public class EmployeeDTO implements Serializable {
     @Schema(description = "primary key")
-    private Integer id;
+    private Long id;
 
     @Schema(description = "姓名")
     private String name;

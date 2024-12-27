@@ -46,7 +46,7 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
         String token = request.getHeader(jwtProperties.getAdminTokenName());
 
         if(currentProfile.equals("dev") &&
-                token.equals("eyJhbGciOiJIUzI1NiJ9.eyJlbXBJZCI6MSwiZXhwIjoxNzM1MTgxNDE3fQ.hjn3upOT_8D7jb0LFMQBCt5oZY4BMfFxcyL7Fl_mZ18")) {
+                "eyJhbGciOiJIUzI1NiJ9.eyJlbXBJZCI6MSwiZXhwIjoxNzM1MTgxNDE3fQ.hjn3upOT_8D7jb0LFMQBCt5oZY4BMfFxcyL7Fl_mZ18".equals(token)) {
             // 方便调试
             BaseContext.setCurrentId(1L);
             return true;
