@@ -17,7 +17,7 @@ public interface CategoryService {
 
     void startOrStop(Integer status, Long id);
 
-    List<Category> getByType(Integer type);
+    List<Category> list(Integer type);
 
     PageResult<Category> page(CategoryPageQueryDTO categoryPageQueryDTO);
 }

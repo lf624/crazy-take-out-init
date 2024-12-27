@@ -1,11 +1,15 @@
 package com.crazy.service.impl;
 
+import com.crazy.constant.MessageConstant;
 import com.crazy.constant.StatusConstant;
 import com.crazy.context.BaseContext;
 import com.crazy.dto.CategoryDTO;
 import com.crazy.dto.CategoryPageQueryDTO;
 import com.crazy.entity.Category;
+import com.crazy.exception.DeletionNotAllowedException;
 import com.crazy.mapper.CategoryMapper;
+import com.crazy.mapper.DishMapper;
+import com.crazy.mapper.SetMealMapper;
 import com.crazy.result.PageResult;
 import com.crazy.service.CategoryService;
 import com.github.pagehelper.Page;
@@ -22,6 +26,10 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Autowired
     CategoryMapper categoryMapper;
+    @Autowired
+    DishMapper dishMapper;
+    @Autowired
+    SetMealMapper setMealMapper;
 
     @Override
     public void save(CategoryDTO categoryDTO) {
@@ -39,6 +47,14 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void delete(Long id) {
+        Integer count = dishMapper.countByCategoryId(id);
+        if(count > 0)
+            throw new DeletionNotAllowedException(MessageConstant.CATEGORY_BE_RELATED_BY_DISH);
+
+        count = setMealMapper.countByCategoryId(id);
+        if(count > 0)
+            throw new DeletionNotAllowedException(MessageConstant.CATEGORY_BE_RELATED_BY_SETMEAL);
+
         categoryMapper.delete(id);
     }
 
@@ -66,8 +82,8 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<Category> getByType(Integer type) {
-        return categoryMapper.getByType(type);
+    public List<Category> list(Integer type) {
+        return categoryMapper.list(type);
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.crazy.controller.admin;
 import com.crazy.dto.CategoryDTO;
 import com.crazy.dto.CategoryPageQueryDTO;
 import com.crazy.entity.Category;
+import com.crazy.exception.DeletionNotAllowedException;
 import com.crazy.result.PageResult;
 import com.crazy.result.Result;
 import com.crazy.service.CategoryService;
@@ -35,7 +36,11 @@ public class CategoryController {
     @Operation(summary = "根据id删除分类")
     public Result<String> delete(@RequestParam Long id) {
         log.info("delete category id: {}", id);
-        categoryService.delete(id);
+        try {
+            categoryService.delete(id);
+        }catch (DeletionNotAllowedException e) {
+            return Result.error(e.getMessage());
+        }
         return Result.success();
     }
 
@@ -56,8 +61,8 @@ public class CategoryController {
 
     @GetMapping("/list")
     @Operation(summary = "根据类型查询分类")
-    public Result<List<Category>> typeList(@RequestParam Integer type) {
-        List<Category> categories = categoryService.getByType(type);
+    public Result<List<Category>> typeList(@RequestParam(required = false) Integer type) {
+        List<Category> categories = categoryService.list(type);
         return Result.success(categories);
     }
 

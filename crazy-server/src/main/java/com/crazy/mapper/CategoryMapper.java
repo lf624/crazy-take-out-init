@@ -22,8 +22,7 @@ public interface CategoryMapper {
 
     void update(Category category);
 
-    @Select("SELECT * FROM category WHERE type = #{type}")
-    List<Category> getByType(Integer type);
+    List<Category> list(Integer type);
 
     Page<Category> pageQuery(CategoryPageQueryDTO categoryPageQueryDTO);
 }
