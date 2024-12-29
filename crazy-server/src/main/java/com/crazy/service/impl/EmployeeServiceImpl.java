@@ -16,8 +16,7 @@ import com.crazy.result.PageResult;
 import com.crazy.service.EmployeeService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,9 +26,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Slf4j
 public class EmployeeServiceImpl implements EmployeeService {
-
-    final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
     private EmployeeMapper employeeMapper;
@@ -42,7 +40,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = employeeMapper.getByUsername(username);
 
         if(employee == null) {
-            logger.warn("there is no employee for username: " + username);
+            log.warn("there is no employee for username: " + username);
             throw new AccountNotFoundException(MessageConstant.ACCOUNT_NOT_FOUND);
         }
 
