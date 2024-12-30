@@ -6,9 +6,6 @@ import com.crazy.dto.EmployeeDTO;
 import com.crazy.dto.EmployeeLoginDTO;
 import com.crazy.dto.EmployeePageQueryDTO;
 import com.crazy.entity.Employee;
-import com.crazy.exception.AccountLockedException;
-import com.crazy.exception.AccountNotFoundException;
-import com.crazy.exception.PasswordErrorException;
 import com.crazy.properties.JwtProperties;
 import com.crazy.result.PageResult;
 import com.crazy.result.Result;
@@ -44,19 +41,7 @@ public class EmployeeController {
     @Operation(summary = "员工登陆")
     public Result<EmployeeLoginVO> login(@RequestBody EmployeeLoginDTO employeeLoginDTO) {
         log.info("employee login: {}", employeeLoginDTO);
-        Employee employee;
-        try {
-            employee = employeeService.login(employeeLoginDTO);
-        } catch (PasswordErrorException pe) {
-            log.warn("try login failed: password error for {}", employeeLoginDTO);
-            return Result.error("密码错误");
-        } catch (AccountNotFoundException e) {
-            log.warn("try login failed: account not found for {}", employeeLoginDTO);
-            return Result.error("账户不存在");
-        } catch (AccountLockedException e) {
-            log.warn("try login failed: account locked for {}", employeeLoginDTO);
-            return Result.error("账户被锁定");
-        }
+        Employee employee = employeeService.login(employeeLoginDTO);;
 
         Map<String, Object> claim = new HashMap<>();
         claim.put(JwtClaimsConstant.EMP_ID, employee.getId());

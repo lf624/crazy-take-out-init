@@ -36,11 +36,7 @@ public class CategoryController {
     @Operation(summary = "根据id删除分类")
     public Result<String> delete(@RequestParam Long id) {
         log.info("delete category id: {}", id);
-        try {
-            categoryService.delete(id);
-        }catch (DeletionNotAllowedException e) {
-            return Result.error(e.getMessage());
-        }
+        categoryService.delete(id);
         return Result.success();
     }
 

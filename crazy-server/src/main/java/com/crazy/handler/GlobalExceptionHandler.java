@@ -1,6 +1,7 @@
 package com.crazy.handler;
 
 import com.crazy.constant.MessageConstant;
+import com.crazy.exception.BaseException;
 import com.crazy.result.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -28,5 +29,16 @@ public class GlobalExceptionHandler {
         } else {
             return Result.error(MessageConstant.UNKNOWN_ERROR);
         }
+    }
+
+    /**
+     * 捕获业务异常
+     * @param ex
+     * @return
+     */
+    @ExceptionHandler
+    public Result<String> baseExceptionHandler(BaseException ex) {
+        log.error("exception msg: {}", ex.getMessage());
+        return Result.error(ex.getMessage());
     }
 }
