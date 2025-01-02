@@ -1,16 +1,16 @@
 package com.crazy.controller.admin;
 
 import com.crazy.dto.DishDTO;
+import com.crazy.dto.DishPageQueryDTO;
+import com.crazy.result.PageResult;
 import com.crazy.result.Result;
 import com.crazy.service.DishService;
+import com.crazy.vo.DishVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -27,5 +27,13 @@ public class DishController {
         log.info("newly add dish: {}", dishDTO);
         dishService.saveWithFlavor(dishDTO);
         return Result.success();
+    }
+
+    @GetMapping("/page")
+    @Operation(summary = "菜品分页查询")
+    public Result<PageResult<DishVO>> page(DishPageQueryDTO dishPageQueryDTO) {
+        log.info("dish page query: {}", dishPageQueryDTO);
+        PageResult<DishVO> pageResult = dishService.pageQuery(dishPageQueryDTO);
+        return Result.success(pageResult);
     }
 }
