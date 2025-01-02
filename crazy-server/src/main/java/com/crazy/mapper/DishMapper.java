@@ -6,6 +6,7 @@ import com.crazy.entity.Dish;
 import com.crazy.enumeration.OperationType;
 import com.crazy.vo.DishVO;
 import com.github.pagehelper.Page;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -24,4 +25,10 @@ public interface DishMapper {
     void insert(Dish dish);
 
     Page<DishVO> pageQuery(DishPageQueryDTO dishPageQueryDTO);
+
+    @Select("SELECT * FROM dish WHERE id = #{id}")
+    Dish getById(Long id);
+
+    @Delete("DELETE FROM dish WHERE id = #{id}")
+    void deleteById(Long id);
 }
