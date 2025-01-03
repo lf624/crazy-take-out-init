@@ -6,10 +6,12 @@ import com.crazy.dto.DishDTO;
 import com.crazy.dto.DishPageQueryDTO;
 import com.crazy.entity.Dish;
 import com.crazy.entity.DishFlavor;
+import com.crazy.entity.Setmeal;
 import com.crazy.exception.DeletionNotAllowedException;
 import com.crazy.mapper.DishFlavorMapper;
 import com.crazy.mapper.DishMapper;
 import com.crazy.mapper.SetMealDishMapper;
+import com.crazy.mapper.SetMealMapper;
 import com.crazy.result.PageResult;
 import com.crazy.service.DishService;
 import com.crazy.vo.DishVO;
@@ -31,6 +33,8 @@ public class DishServiceImpl implements DishService {
     DishFlavorMapper dishFlavorMapper;
     @Autowired
     SetMealDishMapper setMealDishMapper;
+    @Autowired
+    SetMealMapper setMealMapper;
 
     /**
      * 新增菜品
@@ -137,8 +141,24 @@ public class DishServiceImpl implements DishService {
 
     @Override
     public void changeStatus(Integer status, Long id) {
-        Dish dish = dishMapper.getById(id);
-        dish.setStatus(status);
+        Dish dish = Dish.builder()
+                .id(id)
+                .status(status)
+                .build();
         dishMapper.update(dish);
+
+        // 若菜品禁售，与之关联的套餐也要禁售
+        if(StatusConstant.DISABLE.equals(status)) {
+            List<Long> setmealIds = setMealDishMapper.getSetMealIdsByDishIds(List.of(id));
+            if(setmealIds != null && !setmealIds.isEmpty()) {
+                for(Long setmealId : setmealIds) {
+                    Setmeal setmeal = Setmeal.builder()
+                            .id(setmealId)
+                            .status(status)
+                            .build();
+                    setMealMapper.update(setmeal);
+                }
+            }
+        }
     }
 }

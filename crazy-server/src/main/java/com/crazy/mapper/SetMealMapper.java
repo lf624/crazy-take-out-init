@@ -1,5 +1,8 @@
 package com.crazy.mapper;
 
+import com.crazy.annotation.AutoFill;
+import com.crazy.entity.Setmeal;
+import com.crazy.enumeration.OperationType;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -8,4 +11,7 @@ public interface SetMealMapper {
 
     @Select("SELECT COUNT(id) FROM setmeal WHERE category_id = #{categoryId}")
     Integer countByCategoryId(Long id);
+
+    @AutoFill(OperationType.UPDATE)
+    void update(Setmeal setmeal);
 }
