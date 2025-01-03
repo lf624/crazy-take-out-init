@@ -89,4 +89,56 @@ public class DishServiceImpl implements DishService {
         }
         // TODO 是否需要删除云上存储的菜品图片
     }
+
+    /**
+     * 根据id查询菜品和对应的口味数据
+     * @param id
+     * @return
+     */
+    @Override
+    public DishVO getByIdWithFlavor(Long id) {
+        DishVO dishVO = new DishVO();
+        Dish dish = dishMapper.getById(id); // TODO dish可能为null
+        BeanUtils.copyProperties(dish, dishVO);
+
+        List<DishFlavor> dishFlavors = dishFlavorMapper.getByDishId(id);
+        dishVO.setFlavors(dishFlavors);
+
+        return dishVO;
+    }
+
+    /**
+     * 根据id修改菜品基本信息和对应的口味信息
+     * @param dishDTO
+     */
+    @Override
+    public void updateDishWithFlavor(DishDTO dishDTO) {
+        Dish dish = new Dish();
+        BeanUtils.copyProperties(dishDTO, dish);
+
+        //修改菜品表基本信息
+        dishMapper.update(dish);
+
+        //删除原有的口味数据
+        dishFlavorMapper.deleteByDishId(dishDTO.getId());
+
+        //重新插入口味数据
+        List<DishFlavor> dishFlavors = dishDTO.getFlavors();
+        if(dishFlavors != null && !dishFlavors.isEmpty()) {
+            dishFlavors.forEach(df -> df.setDishId(dishDTO.getId()));
+            dishFlavorMapper.insertBatch(dishFlavors);
+        }
+    }
+
+    @Override
+    public List<Dish> getByCategoryId(Long categoryId) {
+        return dishMapper.getByCategoryId(categoryId);
+    }
+
+    @Override
+    public void changeStatus(Integer status, Long id) {
+        Dish dish = dishMapper.getById(id);
+        dish.setStatus(status);
+        dishMapper.update(dish);
+    }
 }

@@ -2,6 +2,7 @@ package com.crazy.controller.admin;
 
 import com.crazy.dto.DishDTO;
 import com.crazy.dto.DishPageQueryDTO;
+import com.crazy.entity.Dish;
 import com.crazy.result.PageResult;
 import com.crazy.result.Result;
 import com.crazy.service.DishService;
@@ -44,6 +45,37 @@ public class DishController {
     public Result<String> delete(@RequestParam List<Long> ids) {
         log.info("batch delete: {}", ids);
         dishService.deleteBatch(ids);
+        return Result.success();
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "根据Id查询菜品")
+    public Result<DishVO> getById(@PathVariable Long id) {
+        log.info("get dish by id: {}", id);
+        DishVO dishVO = dishService.getByIdWithFlavor(id);
+        return Result.success(dishVO);
+    }
+
+    @PutMapping
+    @Operation(summary = "修改菜品")
+    public Result<String> updateDishWithFlavor(@RequestBody DishDTO dishDTO) {
+        log.info("update dish: {}", dishDTO);
+        dishService.updateDishWithFlavor(dishDTO);
+        return Result.success();
+    }
+
+    @GetMapping("/list")
+    @Operation(summary = "根据分类Id查询菜品")
+    public Result<List<Dish>> getByCategoryId(@RequestParam Long categoryId) {
+        log.info("get dish by category id: {}", categoryId);
+        return Result.success(dishService.getByCategoryId(categoryId));
+    }
+
+    @PostMapping("/status/{status}")
+    @Operation(summary = "启售停售菜品")
+    public Result<String> startOrStop(@PathVariable Integer status, @RequestParam Long id) {
+        log.info("change dish {} to status: {}", id, status);
+        dishService.changeStatus(status, id);
         return Result.success();
     }
 }
