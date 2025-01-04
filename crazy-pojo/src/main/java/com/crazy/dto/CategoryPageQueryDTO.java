@@ -4,9 +4,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.io.Serializable;
+
 @Data
 @Schema(description = "category page query DTO")
-public class CategoryPageQueryDTO {
+public class CategoryPageQueryDTO implements Serializable {
 
     @Schema(description = "分类名称")
     private String name;

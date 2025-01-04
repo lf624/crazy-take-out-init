@@ -8,4 +8,18 @@
             #{dishId}
         </foreach>
     </select>
+
+    <insert id="insertBatch" parameterType="com.crazy.entity.SetmealDish">
+        INSERT INTO setmeal_dish (setmeal_id, dish_id, name, price, copies) VALUES
+        <foreach collection="setmealDishes" item="sd" separator=",">
+            (#{sd.setmealId}, #{sd.dishId}, #{sd.name}, #{sd.price}, #{sd.copies})
+        </foreach>
+    </insert>
+
+    <select id="getDishIdsBySetmealIds" resultType="java.lang.Long">
+        SELECT dish_id FROM setmeal_dish WHERE setmeal_id IN
+        <foreach collection="setmealIds" item="setmealId" separator="," open="(" close=")">
+            #{setmealId}
+        </foreach>
+    </select>
 </mapper>

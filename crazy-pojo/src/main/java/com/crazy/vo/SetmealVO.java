@@ -1,7 +1,6 @@
 package com.crazy.vo;
 
-import com.crazy.entity.DishFlavor;
-import io.swagger.v3.oas.annotations.media.Schema;
+import com.crazy.entity.SetmealDish;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,17 +16,24 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Dish VO")
-public class DishVO implements Serializable {
+public class SetmealVO implements Serializable {
     private Long id;
-    private String name;
+
     private Long categoryId;
+
+    private String name;
+
     private BigDecimal price;
+
     private String image;
+
     private String description;
+
     private Integer status;
+
     private LocalDateTime updateTime;
-    @Schema(description = "由分类Id查询得到分类名称")
+
     private String categoryName;
-    private List<DishFlavor> flavors = new ArrayList<>();
+
+    private List<SetmealDish> setmealDishes = new ArrayList<>();
 }

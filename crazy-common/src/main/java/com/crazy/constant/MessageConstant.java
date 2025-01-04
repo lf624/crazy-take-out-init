@@ -12,4 +12,5 @@ public class MessageConstant {
     public static final String UPLOAD_FAILED = "上传文件失败";
     public static final String DISH_ON_SALE = "菜品处于起售中";
     public static final String DiSH_BE_RELATED_BY_SETMEAL = "菜品被套餐关联";
+    public static final String SETMEAL_ON_SALE = "套餐处于起售中";
 }
