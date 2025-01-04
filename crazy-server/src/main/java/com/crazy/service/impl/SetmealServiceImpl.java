@@ -8,6 +8,7 @@ import com.crazy.entity.Dish;
 import com.crazy.entity.Setmeal;
 import com.crazy.entity.SetmealDish;
 import com.crazy.exception.DeletionNotAllowedException;
+import com.crazy.exception.SetmealEnableFailedException;
 import com.crazy.mapper.DishMapper;
 import com.crazy.mapper.SetMealDishMapper;
 import com.crazy.mapper.SetMealMapper;
@@ -33,6 +34,10 @@ public class SetmealServiceImpl implements SetmealService {
     @Autowired
     DishMapper dishMapper;
 
+    /**
+     * 新增套餐，同时需要保存套餐和菜品的关联关系
+     * @param setmealDTO
+     */
     @Override
     @Transactional
     public void save(SetmealDTO setmealDTO) {
@@ -40,6 +45,7 @@ public class SetmealServiceImpl implements SetmealService {
         BeanUtils.copyProperties(setmealDTO, setmeal);
         setMealMapper.insert(setmeal);
 
+        //获取生成的套餐id
         Long setmealId = setmeal.getId();
 
         List<SetmealDish> setmealDishes = setmealDTO.getSetmealDishes();
@@ -88,22 +94,20 @@ public class SetmealServiceImpl implements SetmealService {
     @Override
     @Transactional
     public void changeStatus(Integer status, Long id) {
+        //起售套餐时，判断套餐内是否有停售菜品，有停售菜品提示"套餐内包含未启售菜品，无法启售"
+        if(StatusConstant.ENABLE.equals(status)) {
+            List<Dish> dishes = dishMapper.getBySetmealId(id);
+            dishes.forEach(dish -> {
+                if(StatusConstant.DISABLE.equals(dish.getStatus()))
+                    throw new SetmealEnableFailedException(MessageConstant.SETMEAL_ENABLE_FAILED);
+            });
+        }
+
         Setmeal setmeal = Setmeal.builder()
                 .id(id)
                 .status(status)
                 .build();
         setMealMapper.update(setmeal);
-
-        if(StatusConstant.ENABLE.equals(status)) {
-            List<Long> dishIds = setMealDishMapper.getDishIdsBySetmealIds(List.of(id));
-            for(Long dishId : dishIds) {
-                Dish dish = Dish.builder()
-                        .id(dishId)
-                        .status(StatusConstant.ENABLE)
-                        .build();
-                dishMapper.update(dish);
-            }
-        }
     }
 
     @Override
@@ -112,8 +116,11 @@ public class SetmealServiceImpl implements SetmealService {
             Setmeal setmeal = setMealMapper.getById(id);
             if(StatusConstant.ENABLE.equals(setmeal.getStatus()))
                 throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ON_SALE);
+        }
+
+        ids.forEach(id -> {
             setMealMapper.deleteById(id);
             setMealDishMapper.deleteBySetmealId(id);
-        }
+        });
     }
 }

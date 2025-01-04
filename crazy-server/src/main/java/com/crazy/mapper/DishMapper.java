@@ -37,6 +37,9 @@ public interface DishMapper {
     @AutoFill(OperationType.UPDATE)
     void update(Dish dish);
 
-    @Select("SELECT * FROM dish WHERE category_id = #{categoryId}")
-    List<Dish> getByCategoryId(Long categoryId);
+    // 动态查询
+    List<Dish> list(Dish dish);
+
+    @Select("SELECT d.* FROM dish AS d LEFT JOIN setmeal_dish AS sd ON d.id = sd.dish_id WHERE sd.setmeal_id = #{setmealId}")
+    List<Dish> getBySetmealId(Long setmealId);
 }

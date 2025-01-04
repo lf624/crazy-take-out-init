@@ -22,7 +22,7 @@
         VALUES (#{categoryId}, #{name}, #{price}, #{description}, #{image}, #{createTime}, #{updateTime}, #{createUser}, #{updateUser}, #{status})
     </insert>
 
-    <select id="pageQuery">
+    <select id="pageQuery" resultType="com.crazy.vo.SetmealVO">
         SELECT s.*, c.name AS categoryName FROM setmeal AS s LEFT JOIN category AS c ON s.category_id = c.id
         <where>
             <if test="name != null">
