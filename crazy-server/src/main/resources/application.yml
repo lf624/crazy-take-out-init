@@ -14,6 +14,12 @@ spring:
     password: ${crazy.datasource.password}
     # 需要用这种方式指定连接池类型
     type: com.alibaba.druid.pool.DruidDataSource
+  data:
+    redis:
+      host: ${crazy.redis.host}
+      port: ${crazy.redis.port}
+      password: ${crazy.redis.password}
+      database: ${crazy.redis.database}
 
 mybatis:
   # mapper配置文件，实现@Mapper的自动扫描和管理，需引入 mybatis-spring-boot-starter 依赖

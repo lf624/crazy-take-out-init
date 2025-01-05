@@ -5,16 +5,26 @@ services:
     ports:
       - "3306:3306"
     command:
-      --default-authentication-plugin=mysql_native_password
-      #设置服务器的默认字符集和默认排序规则
-      --character-set-server=utf8mb4
-      --collation-server=utf8mb4_unicode_ci
-      #忽略客户端发送的字符集设置，强制使用服务器端的字符集
-      --skip-character-set-client-handshake
-      #确保每次新连接时，设置连接的字符集和排序规则
-      --init_connect="SET NAMES utf8mb4 COLLATE utf8mb4_general_ci;"
+      - "--default-authentication-plugin=mysql_native_password"
+      # 设置服务器的默认字符集和默认排序规则
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_unicode_ci"
+      # 忽略客户端发送的字符集设置，强制使用服务器端的字符集
+      - "--skip-character-set-client-handshake"
+      # 确保每次新连接时，设置连接的字符集和排序规则
+      - "--init_connect=SET NAMES utf8mb4 COLLATE utf8mb4_general_ci;"
     environment:
       - MYSQL_ROOT_PASSWORD=root
     volumes:
       - "./sql/crazy.sql:/docker-entrypoint-initdb.d/1-schema.sql:ro"
       - "./docker/mysql-data:/var/lib/mysql"
+
+  redis:
+    image: redis:7.4
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - "./docker/redis-data:/data"
+      - "./redis.conf:/usr/local/etc/redis/redis.conf"
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
