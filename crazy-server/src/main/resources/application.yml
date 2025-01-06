@@ -37,6 +37,7 @@ logging:
         service: info
         controller: info
         handler: debug
+        utils: debug
 
 crazy:
   jwt:
@@ -46,12 +47,18 @@ crazy:
     admin-ttl: 7200000
     # 前端传递过来的令牌名称
     admin-token-name: token
+    user-secret-key: CRAZYTAKEOUTcrazytakeoutuserUSERuse
+    user-ttl: 7200000
+    user-token-name: authentication
   # 腾讯云对象存储
   qcos:
     region: ${crazy.qcos.region}
     access-secret-id: ${crazy.qcos.access-secret-id}
     access-secret-key: ${crazy.qcos.access-secret-key}
     bucket-name: ${crazy.qcos.bucket-name}
+  wechat:
+    appid: ${crazy.wechat.appid}
+    secret: ${crazy.wechat.secret}
 
 springdoc:
   api-docs:

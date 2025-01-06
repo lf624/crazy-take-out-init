@@ -4,11 +4,14 @@ import com.crazy.annotation.AutoFill;
 import com.crazy.dto.SetmealPageQueryDTO;
 import com.crazy.entity.Setmeal;
 import com.crazy.enumeration.OperationType;
+import com.crazy.vo.DishItemVO;
 import com.crazy.vo.SetmealVO;
 import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 @Mapper
 public interface SetMealMapper {
@@ -32,4 +35,10 @@ public interface SetMealMapper {
 
     @Delete("DELETE FROM setmeal WHERE id = #{id}")
     void deleteById(Long id);
+
+    List<Setmeal> list(Setmeal setmeal);
+
+    @Select("SELECT d.name, d.image,d.description, sd.copies FROM setmeal_dish sd " +
+            "LEFT JOIN dish d ON sd.dish_id = d.id WHERE sd.setmeal_id = #{setmealId}")
+    List<DishItemVO> getDishItemBySetmealId(Long setmealId);
 }

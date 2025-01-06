@@ -4,6 +4,7 @@ import com.crazy.dto.SetmealDTO;
 import com.crazy.dto.SetmealPageQueryDTO;
 import com.crazy.entity.Setmeal;
 import com.crazy.result.PageResult;
+import com.crazy.vo.DishItemVO;
 import com.crazy.vo.SetmealVO;
 
 import java.util.List;
@@ -21,4 +22,8 @@ public interface SetmealService {
     void changeStatus(Integer status, Long id);
 
     void deleteBatch(List<Long> ids);
+
+    List<Setmeal> list(Setmeal setmeal);
+
+    List<DishItemVO> listDishById(Long id);
 }

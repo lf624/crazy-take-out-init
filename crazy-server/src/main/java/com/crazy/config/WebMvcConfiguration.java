@@ -1,6 +1,7 @@
 package com.crazy.config;
 
 import com.crazy.interceptor.JwtTokenAdminInterceptor;
+import com.crazy.interceptor.JwtTokenUserInterceptor;
 import com.crazy.json.JacksonObjectMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -22,6 +23,8 @@ import java.time.LocalDateTime;
 public class WebMvcConfiguration {
     @Autowired
     JwtTokenAdminInterceptor jwtTokenAdminInterceptor;
+    @Autowired
+    JwtTokenUserInterceptor jwtTokenUserInterceptor;
 
     /**
      * 注册Interceptor，设置静态资源映射
@@ -35,6 +38,10 @@ public class WebMvcConfiguration {
                 registry.addInterceptor(jwtTokenAdminInterceptor)
                         .addPathPatterns("/admin/**")
                         .excludePathPatterns("/admin/employee/login");// 登陆时不验证token
+                registry.addInterceptor(jwtTokenUserInterceptor)
+                        .addPathPatterns("/user/**")
+                        .excludePathPatterns("/user/user/login")
+                        .excludePathPatterns("/user/shop/status");
             }
 
             @Override

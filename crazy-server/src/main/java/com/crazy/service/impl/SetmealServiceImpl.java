@@ -14,6 +14,7 @@ import com.crazy.mapper.SetMealDishMapper;
 import com.crazy.mapper.SetMealMapper;
 import com.crazy.result.PageResult;
 import com.crazy.service.SetmealService;
+import com.crazy.vo.DishItemVO;
 import com.crazy.vo.SetmealVO;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -122,5 +124,15 @@ public class SetmealServiceImpl implements SetmealService {
             setMealMapper.deleteById(id);
             setMealDishMapper.deleteBySetmealId(id);
         });
+    }
+
+    @Override
+    public List<Setmeal> list(Setmeal setmeal) {
+        return setMealMapper.list(setmeal);
+    }
+
+    @Override
+    public List<DishItemVO> listDishById(Long id) {
+        return setMealMapper.getDishItemBySetmealId(id);
     }
 }
