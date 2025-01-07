@@ -8,6 +8,7 @@ import com.crazy.vo.DishItemVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class SetmealController {
     SetmealService setmealService;
 
     @GetMapping("/list")
+    @Cacheable(value = "setmealCache", key = "#categoryId")
     @Operation(summary = "根据分类id查询套餐")
     public Result<List<Setmeal>> list(@RequestParam Long categoryId) {
         Setmeal setmeal = Setmeal.builder()

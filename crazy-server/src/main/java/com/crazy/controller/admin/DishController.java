@@ -74,8 +74,8 @@ public class DishController {
         log.info("update dish: {}", dishDTO);
         dishService.updateDishWithFlavor(dishDTO);
 
-        // 清理菜品缓存
-        cleanCache("dish_" + dishDTO.getCategoryId());
+        // 清理所有菜品缓存，因为可能修改后的分类也变了
+        cleanCache("dish_*");
         return Result.success();
     }
 
