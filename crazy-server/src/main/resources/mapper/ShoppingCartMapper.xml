@@ -24,9 +24,7 @@
     <delete id="delete" parameterType="com.crazy.entity.ShoppingCart">
         DELETE FROM shopping_cart
         <where>
-            <if test="userId != null">
-                AND user_id = #{userId}
-            </if>
+            user_id = #{userId}
             <if test="dishId != null">
                 AND dish_id = #{dishId}
             </if>
