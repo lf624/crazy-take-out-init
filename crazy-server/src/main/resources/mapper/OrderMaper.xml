@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.crazy.mapper.OrderMapper">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO orders (number, status, user_id, address_book_id, order_time, checkout_time, pay_method,
+        pay_status, amount, remark, phone, address, consignee, estimated_delivery_time, delivery_status, pack_amount,
+        tableware_number, tableware_status) VALUES
+        (#{number}, #{status}, #{userId}, #{addressBookId}, #{orderTime}, #{checkoutTime}, #{payMethod},
+        #{payStatus}, #{amount}, #{remark}, #{phone}, #{address}, #{consignee},
+        #{estimatedDeliveryTime}, #{deliveryStatus}, #{packAmount}, #{tablewareNumber}, #{tablewareStatus})
+    </insert>
+
+    <update id="update">
+        UPDATE orders
+        <set>
+            <if test="checkoutTime != null">
+                checkout_time = #{checkoutTime},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="payStatus != null">
+                pay_status = #{payStatus},
+            </if>
+            <if test="cancelReason != null and cancelReason!='' ">
+                cancel_reason=#{cancelReason},
+            </if>
+            <if test="rejectionReason != null and rejectionReason!='' ">
+                rejection_reason=#{rejectionReason},
+            </if>
+            <if test="cancelTime != null">
+                cancel_time=#{cancelTime},
+            </if>
+            <if test="payMethod != null">
+                pay_method=#{payMethod},
+            </if>
+            <if test="deliveryTime != null">
+                delivery_time = #{deliveryTime}
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <resultMap id="OrderDetailVOMap" type="com.crazy.vo.OrderDetailVO" autoMapping="true">
+        <!-- 必须要指定id才能将下面的多行合并成一个对象 -->
+        <id property="id" column="id"/>
+        <!-- 其他字段可自动匹配 -->
+        <!-- 映射 order_detail 的集合 -->
+        <collection property="orderDetailList" ofType="com.crazy.entity.OrderDetail" resultMap="OrderDetailMap">
+        </collection>
+    </resultMap>
+    <resultMap id="OrderDetailMap" type="com.crazy.entity.OrderDetail" autoMapping="true">
+        <!-- 映射必要字段 -->
+        <id property="id" column="od_id"/>
+        <result property="number" column="od_number"/>
+        <result property="amount" column="od_amount"/>
+        <!-- 其他字段可以自动匹配 -->
+    </resultMap>
+    <select id="page" resultMap="OrderDetailVOMap">
+        SELECT o.*, od.id AS od_id, od.number AS od_number, od.amount AS od_amount,
+        od.name, od.image, od.order_id, od.dish_id, od.setmeal_id, od.dish_flavor
+        <!-- 先分页，再关联查询 -->
+        FROM (
+            SELECT * FROM orders
+            <where>
+                <if test="status != null">
+                    AND status = #{status}
+                </if>
+            </where>
+            ORDER BY order_time DESC
+            LIMIT #{offset}, #{limit}
+        ) o
+        LEFT JOIN order_detail od ON o.id = od.order_id
+    </select>
+
+    <select id="conditionSearch" resultType="com.crazy.vo.OrderSearchVO">
+        SELECT o.*, GROUP_CONCAT(od.name SEPARATOR ', ') AS orderDishes FROM orders o LEFT JOIN order_detail od on o.id = od.order_id
+        <where>
+            <if test="status != null">
+                AND o.status = #{status}
+            </if>
+            <if test="number != null">
+                AND o.number = #{number}
+            </if>
+            <if test="phone != null">
+                AND o.phone = #{phone}
+            </if>
+            <if test="beginTime != null">
+                AND o.order_time &gt;= #{beginTime}
+            </if>
+            <if test="endTime != null">
+                AND o.order_time &lt;= #{endTime}
+            </if>
+        </where>
+        GROUP BY o.id, o.order_time
+        ORDER BY o.order_time DESC
+    </select>
+</mapper>

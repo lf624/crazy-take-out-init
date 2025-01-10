@@ -38,6 +38,7 @@ public class AddressBook implements Serializable {
 
     private String detail;
 
+    // 标签：家，公司，学校
     private String label;
 
     private Integer isDefault;

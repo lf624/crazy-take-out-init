@@ -15,4 +15,6 @@ public class MessageConstant {
     public static final String SETMEAL_ON_SALE = "套餐处于起售中";
     public static final String SETMEAL_ENABLE_FAILED = "套餐内包含未启售菜品，无法启售";
     public static final String LOGIN_FAILED = "用户登陆失败";
+    public static final String ADDRESS_BOOK_IS_NULL = "地址簿为空";
+    public static final String SHOPPING_CART_IS_NULL = "购物车为空";
 }
