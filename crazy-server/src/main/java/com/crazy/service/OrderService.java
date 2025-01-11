@@ -16,7 +16,7 @@ public interface OrderService {
 
     PageResult<OrderDetailVO> pageQuery(OrderPageQueryDTO orderPageQueryDTO);
 
-    void cancelById(Long id);
+    void userCancelById(Long id);
 
     void repeat(Long id);
 

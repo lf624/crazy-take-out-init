@@ -9,6 +9,7 @@ import com.crazy.entity.OrderDetail;
 import com.crazy.entity.Orders;
 import com.crazy.entity.ShoppingCart;
 import com.crazy.exception.AddressBookBusinessException;
+import com.crazy.exception.OrderBusinessException;
 import com.crazy.exception.ShoppingCartBusinessException;
 import com.crazy.mapper.AddressBookMapper;
 import com.crazy.mapper.OrderDetailMapper;
@@ -19,6 +20,7 @@ import com.crazy.service.OrderService;
 import com.crazy.vo.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class OrderServiceImpl implements OrderService {
 
@@ -48,6 +51,7 @@ public class OrderServiceImpl implements OrderService {
         if(addressBook == null) {
             throw new AddressBookBusinessException(MessageConstant.ADDRESS_BOOK_IS_NULL);
         }
+        // TODO 判断是否超出配送范围
 
         Long userId = BaseContext.getCurrentId();
         ShoppingCart shoppingCart = ShoppingCart.builder()
@@ -150,27 +154,49 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void cancelById(Long id) {
-        Orders order = Orders.builder()
-                .id(id)
-                .status(OrderStatus.CANCELED)
-                .cancelTime(LocalDateTime.now())
-                .build();
+    public void userCancelById(Long id) {
+        Orders orderDb = orderMapper.getById(id);
 
+        // 校验订单是否存在
+        if(orderDb == null)
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+
+        // 订单状态 1待付款 2待接单 3已接单 4派送中 5已完成 6已取消
+        if(orderDb.getStatus() > 2)
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+
+        Orders order = new Orders();
+        order.setId(orderDb.getId());
+
+        // 订单处于待接单状态下取消，需要进行退款
+        if(OrderStatus.TO_BE_CONFIRMED.equals(orderDb.getStatus())) {
+            // 调用微信支付退款接口
+            // ...
+            log.info("因订单处于待接单状态，取消订单时退款...");
+            // 支付状态修改为 退款
+            order.setPayStatus(OrderStatus.REFUND);
+        }
+
+        order.setStatus(OrderStatus.CANCELED);
+        order.setCancelReason("用户取消");
+        order.setCancelTime(LocalDateTime.now());
         orderMapper.update(order);
     }
 
     @Override
-    @Transactional
     public void repeat(Long id) {
         List<OrderDetail> orderDetails = orderDetailMapper.getByOrderId(id);
+        Long userId = BaseContext.getCurrentId();
+        List<ShoppingCart> shoppingCartList = new ArrayList<>();
         orderDetails.forEach(od -> {
             ShoppingCart shoppingCart = new ShoppingCart();
             BeanUtils.copyProperties(od, shoppingCart);
-            shoppingCart.setUserId(BaseContext.getCurrentId());
+            shoppingCart.setUserId(userId);
             shoppingCart.setCreateTime(LocalDateTime.now());
-            shoppingCartMapper.insert(shoppingCart);
+            shoppingCartList.add(shoppingCart);
         });
+
+        shoppingCartMapper.insertBatch(shoppingCartList);
     }
 
     @Override
@@ -206,14 +232,24 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void reject(OrderRejectionDTO orderRejectionDTO) {
-        Orders rejectOrder = orderMapper.getById(orderRejectionDTO.getId());
-        String number = rejectOrder.getNumber();
-        // 调用微信退款接口将支付金额全部原路退还
-        // ...
-        // 设置订单状态
+        Orders orderDb = orderMapper.getById(orderRejectionDTO.getId());
+        // 订单只有存在且状态为2（待接单）才可以拒单
+        if(orderDb == null || OrderStatus.TO_BE_CONFIRMED.equals(orderDb.getStatus()))
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+
+        // 若用户已支付，需要退款
+        Integer payStatus = orderDb.getPayStatus();
+        if(OrderStatus.PAID.equals(payStatus)) {
+            // 调用微信退款接口将支付金额全部原路退还
+            // ...
+            log.info("申请退款....");
+            // TODO 管理端退款时是否需要更新支付状态
+        }
+
+        // 拒单需要退款，根据订单id更新订单状态、拒单原因、取消时间
         Orders order = Orders.builder()
                 .id(orderRejectionDTO.getId())
-                .payStatus(OrderStatus.REFUND)
+                //.payStatus(OrderStatus.REFUND)
                 .rejectionReason(orderRejectionDTO.getRejectionReason())
                 .status(OrderStatus.CANCELED)
                 .cancelTime(LocalDateTime.now())
@@ -223,13 +259,20 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void cancel(OrderCancelDTO orderCancelDTO) {
-        // 调用微信退款接口将支付金额全部原路退还
-        // ...
+        Orders orderDb = orderMapper.getById(orderCancelDTO.getId());
+
+        Integer payStatus = orderDb.getPayStatus();
+        if(OrderStatus.PAID.equals(payStatus)) {
+            // 调用微信退款接口将支付金额全部原路退还
+            // ...
+            log.info("申请退款...");
+            // TODO 管理端退款时是否需要更新支付状态
+        }
 
         Orders order = Orders.builder()
                 .id(orderCancelDTO.getId())
                 .status(OrderStatus.CANCELED)
-                .payStatus(OrderStatus.REFUND)
+                //.payStatus(OrderStatus.REFUND)
                 .cancelReason(orderCancelDTO.getCancelReason())
                 .cancelTime(LocalDateTime.now())
                 .build();
@@ -238,6 +281,13 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void delivery(Long id) {
+        Orders orderDb = orderMapper.getById(id);
+
+        // 校验订单是否存在，并且状态为3
+        if(orderDb == null || !OrderStatus.CONFIRMED.equals(orderDb.getStatus()))
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+
+        // 更新订单状态为派送中
         Orders order = Orders.builder()
                 .id(id)
                 .status(OrderStatus.DELIVERY_IN_PROGRESS)
@@ -247,6 +297,13 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void complete(Long id) {
+        Orders orderDb = orderMapper.getById(id);
+
+        // 校验订单是否存在，并且状态为4
+        if(orderDb == null || OrderStatus.DELIVERY_IN_PROGRESS.equals(orderDb.getStatus()))
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+
+        // 更新订单状态为完成
         Orders order = Orders.builder()
                 .id(id)
                 .status(OrderStatus.COMPLETED)

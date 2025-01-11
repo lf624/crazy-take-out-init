@@ -57,6 +57,7 @@
         <result property="amount" column="od_amount"/>
         <!-- 其他字段可以自动匹配 -->
     </resultMap>
+
     <select id="page" resultMap="OrderDetailVOMap">
         SELECT o.*, od.id AS od_id, od.number AS od_number, od.amount AS od_amount,
         od.name, od.image, od.order_id, od.dish_id, od.setmeal_id, od.dish_flavor
@@ -75,16 +76,16 @@
     </select>
 
     <select id="conditionSearch" resultType="com.crazy.vo.OrderSearchVO">
-        SELECT o.*, GROUP_CONCAT(od.name SEPARATOR ', ') AS orderDishes FROM orders o LEFT JOIN order_detail od on o.id = od.order_id
+        SELECT o.*, GROUP_CONCAT(od.name, "*", od.number SEPARATOR ', ') AS orderDishes FROM orders o LEFT JOIN order_detail od on o.id = od.order_id
         <where>
             <if test="status != null">
                 AND o.status = #{status}
             </if>
             <if test="number != null">
-                AND o.number = #{number}
+                AND o.number LIKE concat('%', #{number}, '%')
             </if>
             <if test="phone != null">
-                AND o.phone = #{phone}
+                AND o.phone LIKE concat('%', #{phone}, '%')
             </if>
             <if test="beginTime != null">
                 AND o.order_time &gt;= #{beginTime}
