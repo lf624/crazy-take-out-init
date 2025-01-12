@@ -38,3 +38,5 @@ build/docker/
 
 ### private config ###
 crazy-server/src/main/resources/application-dev.yml
+### cache ####
+crazy-server/src/main/resources/template/~$DataReportTemplate.xlsx

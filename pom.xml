@@ -38,6 +38,7 @@
         <aliyun.sdk.oss>3.18.1</aliyun.sdk.oss>
         <qcloud.cos>5.6.238.3</qcloud.cos>
         <jakarta.xml.bind.api>4.0.2</jakarta.xml.bind.api>
+        <poi>5.4.0</poi>
     </properties>
 
     <dependencyManagement>
@@ -112,8 +113,17 @@
                 <artifactId>jakarta.xml.bind-api</artifactId>
                 <version>${jakarta.xml.bind.api}</version>
             </dependency>
-
-
+            <!-- POI -->
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi</artifactId>
+                <version>${poi}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml</artifactId>
+                <version>${poi}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

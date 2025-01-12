@@ -5,14 +5,20 @@ import com.crazy.dto.GoodsSalesTop10;
 import com.crazy.mapper.OrderMapper;
 import com.crazy.mapper.UserMapper;
 import com.crazy.service.ReportService;
-import com.crazy.vo.OrderReportVO;
-import com.crazy.vo.SalesTop10ReportVO;
-import com.crazy.vo.TurnoverReportVO;
-import com.crazy.vo.UserReportVO;
+import com.crazy.service.WorkspaceService;
+import com.crazy.vo.*;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -23,6 +29,7 @@ import java.util.Map;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class ReportServiceImpl implements ReportService {
 
@@ -30,6 +37,8 @@ public class ReportServiceImpl implements ReportService {
     OrderMapper orderMapper;
     @Autowired
     UserMapper userMapper;
+    @Autowired
+    WorkspaceService workspaceService;
 
     /**
      * 根据时间区间统计营业额
@@ -139,6 +148,55 @@ public class ReportServiceImpl implements ReportService {
                 .nameList(nameList)
                 .numberList(numberList)
                 .build();
+    }
+
+    @Override
+    public void exportBusinessData(HttpServletResponse response) {
+        LocalDate begin = LocalDate.now().minusDays(30);
+        LocalDate end = LocalDate.now().minusDays(1);
+        // 查询概览运营数据
+        BusinessDataVO totalBusinessData = workspaceService.getBusinessData(
+                LocalDateTime.of(begin, LocalTime.MIN), LocalDateTime.of(end, LocalTime.MAX));
+        try (InputStream input = this.getClass().getClassLoader().getResourceAsStream(
+                "template/DataReportTemplate.xlsx")){ // 提供 Excel 模板文件
+            if(input == null)
+                throw new RuntimeException("Unable to load the DataReportTemplate.xlsx resource");
+            // 基于提供好的模板文件创建一个新的Excel表格对象
+            XSSFWorkbook excel = new XSSFWorkbook(input);
+            // 获得Excel文件中的一个Sheet页
+            XSSFSheet sheet = excel.getSheet("Sheet1");
+
+            sheet.getRow(1).getCell(1).setCellValue(begin + "至" + end);
+            sheet.getRow(3).getCell(2).setCellValue(totalBusinessData.getTurnover());
+            sheet.getRow(3).getCell(4).setCellValue(totalBusinessData.getOrderCompletionRate());
+            sheet.getRow(3).getCell(6).setCellValue(totalBusinessData.getNewUsers());
+            sheet.getRow(4).getCell(2).setCellValue(totalBusinessData.getValidOrderCount());
+            sheet.getRow(4).getCell(4).setCellValue(totalBusinessData.getUnitPrice());
+
+            for(int i = 0; i < 30; i++) {
+                LocalDate date = begin.plusDays(i);
+                // 查询明细数据
+                BusinessDataVO dayBusinessDate = workspaceService.getBusinessData(
+                        LocalDateTime.of(date, LocalTime.MIN), LocalDateTime.of(date, LocalTime.MAX));
+                XSSFRow row = sheet.getRow(7 + i);
+                row.getCell(1).setCellValue(date.toString());
+                row.getCell(2).setCellValue(dayBusinessDate.getTurnover());
+                row.getCell(3).setCellValue(dayBusinessDate.getValidOrderCount());
+                row.getCell(4).setCellValue(dayBusinessDate.getOrderCompletionRate());
+                row.getCell(5).setCellValue(dayBusinessDate.getUnitPrice());
+                row.getCell(6).setCellValue(dayBusinessDate.getNewUsers());
+            }
+            // 通过输出流将文件下载到客户端浏览器中
+            ServletOutputStream output = response.getOutputStream();
+            excel.write(output);
+
+            // 关闭资源
+            output.flush();
+            output.close();
+            excel.close();
+        } catch (IOException e) {
+            log.error(e.toString());
+        }
     }
 
     // 得到时间区间
