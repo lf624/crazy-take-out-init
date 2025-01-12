@@ -52,4 +52,13 @@
             </if>
         </where>
     </select>
+
+    <select id="countByMap" resultType="java.lang.Integer">
+        SELECT count(id) FROM setmeal
+        <where>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
 </mapper>
