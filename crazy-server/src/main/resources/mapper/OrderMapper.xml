@@ -97,4 +97,48 @@
         GROUP BY o.id, o.order_time
         ORDER BY o.order_time DESC
     </select>
+
+    <select id="sumByMap" resultType="java.lang.Double">
+        SELECT sum(amount) FROM orders
+        <where>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="begin != null">
+                AND order_time &gt;= #{begin}
+            </if>
+            <if test="end != null">
+                AND order_time &lt;= #{end}
+            </if>
+        </where>
+    </select>
+
+    <select id="countByMap" resultType="java.lang.Integer">
+        SELECT count(id) FROM orders
+        <where>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="begin != null">
+                AND order_time &gt;= #{begin}
+            </if>
+            <if test="end != null">
+                AND order_time &lt;= #{end}
+            </if>
+        </where>
+    </select>
+
+    <select id="getSalesTop10" resultType="com.crazy.dto.GoodsSalesTop10">
+        SELECT od.name AS name, sum(od.number) AS number FROM order_detail od, orders o
+        WHERE od.order_id = o.id AND o.status = 5
+        <if test="begin != null">
+            AND o.order_time &gt;= #{begin}
+        </if>
+        <if test="end != null">
+            AND o.order_time &lt;= #{end}
+        </if>
+        GROUP BY name
+        ORDER BY number DESC
+        LIMIT 0, 10
+    </select>
 </mapper>

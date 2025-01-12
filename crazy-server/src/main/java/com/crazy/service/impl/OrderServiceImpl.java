@@ -244,7 +244,7 @@ public class OrderServiceImpl implements OrderService {
     public void reject(OrderRejectionDTO orderRejectionDTO) {
         Orders orderDb = orderMapper.getById(orderRejectionDTO.getId());
         // 订单只有存在且状态为2（待接单）才可以拒单
-        if(orderDb == null || OrderStatus.TO_BE_CONFIRMED.equals(orderDb.getStatus()))
+        if(orderDb == null || !OrderStatus.TO_BE_CONFIRMED.equals(orderDb.getStatus()))
             throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
 
         // 若用户已支付，需要退款
@@ -310,7 +310,7 @@ public class OrderServiceImpl implements OrderService {
         Orders orderDb = orderMapper.getById(id);
 
         // 校验订单是否存在，并且状态为4
-        if(orderDb == null || OrderStatus.DELIVERY_IN_PROGRESS.equals(orderDb.getStatus()))
+        if(orderDb == null || !OrderStatus.DELIVERY_IN_PROGRESS.equals(orderDb.getStatus()))
             throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
 
         // 更新订单状态为完成
