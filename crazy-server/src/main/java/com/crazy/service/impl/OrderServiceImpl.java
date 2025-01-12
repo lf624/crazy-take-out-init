@@ -1,5 +1,6 @@
 package com.crazy.service.impl;
 
+import com.alibaba.fastjson2.JSON;
 import com.crazy.constant.MessageConstant;
 import com.crazy.constant.OrderStatus;
 import com.crazy.context.BaseContext;
@@ -18,6 +19,7 @@ import com.crazy.mapper.ShoppingCartMapper;
 import com.crazy.result.PageResult;
 import com.crazy.service.OrderService;
 import com.crazy.vo.*;
+import com.crazy.websocket.WebSocketServer;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -27,12 +29,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
 public class OrderServiceImpl implements OrderService {
+    @Autowired
+    WebSocketServer webSocketServer;
 
     @Autowired
     AddressBookMapper addressBookMapper;
@@ -130,6 +133,13 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         orderMapper.update(order);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("type", 1);
+        map.put("orderId", order.getId());
+        map.put("content", "订单号：" + outTradeNo);
+        //通过WebSocket实现来单提醒，向客户端浏览器推送消息
+        webSocketServer.sendToAllClient(JSON.toJSONString(map));
     }
 
     @Override
@@ -310,5 +320,20 @@ public class OrderServiceImpl implements OrderService {
                 .deliveryTime(LocalDateTime.now())
                 .build();
         orderMapper.update(order);
+    }
+
+    @Override
+    public void remind(Long id) {
+        Orders orderDb = orderMapper.getById(id);
+
+        if(orderDb == null)
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("type", 2);
+        map.put("orderId", id);
+        map.put("content", "订单号：" + orderDb.getNumber());
+        //基于WebSocket实现催单
+        webSocketServer.sendToAllClient(JSON.toJSONString(map));
     }
 }
