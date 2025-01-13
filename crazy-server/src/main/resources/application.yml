@@ -59,6 +59,10 @@ crazy:
   wechat:
     appid: ${crazy.wechat.appid}
     secret: ${crazy.wechat.secret}
+  shop:
+    address: ${crazy.shop.address}
+  baidu:
+    ak: ${crazy.baidu.ak}
 
 springdoc:
   api-docs:
