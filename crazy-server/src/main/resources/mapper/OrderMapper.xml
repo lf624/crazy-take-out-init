@@ -68,6 +68,9 @@
                 <if test="status != null">
                     AND status = #{status}
                 </if>
+                <if test="userId != null">
+                    AND user_id = #{userId}
+                </if>
             </where>
             ORDER BY order_time DESC
             LIMIT #{offset}, #{limit}

@@ -27,7 +27,7 @@ public interface OrderMapper {
     @Select("SELECT * FROM orders WHERE id = #{id}")
     Orders getById(Long id);
 
-    List<OrderDetailVO> page(Integer status, int offset, int limit);
+    List<OrderDetailVO> page(Integer status, Long userId, int offset, int limit);
 
     Page<OrderSearchVO> conditionSearch(OrderSearchDTO orderSearchDTO);
 

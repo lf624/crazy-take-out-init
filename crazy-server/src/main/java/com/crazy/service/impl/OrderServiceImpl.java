@@ -64,7 +64,7 @@ public class OrderServiceImpl implements OrderService {
         if(addressBook == null) {
             throw new AddressBookBusinessException(MessageConstant.ADDRESS_BOOK_IS_NULL);
         }
-        // TODO 判断是否超出配送范围
+        // 判断是否超出配送范围
         checkOutOfRange(addressBook.getProvinceName() + addressBook.getCityName() +
                 addressBook.getDistrictName() + addressBook.getDetail());
 
@@ -168,10 +168,11 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public PageResult<OrderDetailVO> pageQuery(OrderPageQueryDTO orderPageQueryDTO) {
+        Long userId = BaseContext.getCurrentId();
         int page = orderPageQueryDTO.getPage();
         int pageSize = orderPageQueryDTO.getPageSize();
         int offset = (page - 1) * pageSize;
-        List<OrderDetailVO> pages = orderMapper.page(orderPageQueryDTO.getStatus(), offset, pageSize);
+        List<OrderDetailVO> pages = orderMapper.page(orderPageQueryDTO.getStatus(), userId, offset, pageSize);
         return new PageResult<>(pages.size(), pages);
     }
 
@@ -372,7 +373,7 @@ public class OrderServiceImpl implements OrderService {
         String userCoordinate = HttpClientUtil.doGet("https://api.map.baidu.com/geocoding/v3", map);
         jsonObject = JSONObject.parseObject(userCoordinate);
         if(!"0".equals(jsonObject.getString("status"))) {
-            throw new OrderBusinessException("店铺地址解析失败");
+            throw new OrderBusinessException("用户地址解析失败");
         }
 
         location = jsonObject.getJSONObject("result").getJSONObject("location");
@@ -397,5 +398,6 @@ public class OrderServiceImpl implements OrderService {
 
         if(distance > 5000)
             throw new OrderBusinessException("超出配送范围");
+        // TODO 小程序端在超出范围时只是抛出异常
     }
 }
