@@ -131,7 +131,7 @@
         </where>
     </select>
 
-    <select id="getSalesTop10" resultType="com.crazy.dto.GoodsSalesTop10">
+    <select id="getSalesTop10" resultType="com.crazy.dto.GoodsSalesDTO">
         SELECT od.name AS name, sum(od.number) AS number FROM order_detail od, orders o
         WHERE od.order_id = o.id AND o.status = 5
         <if test="begin != null">

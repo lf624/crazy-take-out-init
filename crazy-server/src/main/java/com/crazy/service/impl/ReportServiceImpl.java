@@ -1,7 +1,7 @@
 package com.crazy.service.impl;
 
 import com.crazy.constant.OrderStatus;
-import com.crazy.dto.GoodsSalesTop10;
+import com.crazy.dto.GoodsSalesDTO;
 import com.crazy.mapper.OrderMapper;
 import com.crazy.mapper.UserMapper;
 import com.crazy.service.ReportService;
@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -136,10 +135,10 @@ public class ReportServiceImpl implements ReportService {
     public SalesTop10ReportVO getSalesTop10(LocalDate begin, LocalDate end) {
         LocalDateTime beginTime = LocalDateTime.of(begin, LocalTime.MIN);
         LocalDateTime endTime = LocalDateTime.of(end, LocalTime.MAX);
-        List<GoodsSalesTop10> salesTop10s = orderMapper.getSalesTop10(beginTime, endTime);
+        List<GoodsSalesDTO> salesTop10s = orderMapper.getSalesTop10(beginTime, endTime);
 
         String nameList = salesTop10s.stream()
-                .map(GoodsSalesTop10::getName)
+                .map(GoodsSalesDTO::getName)
                 .collect(Collectors.joining(","));
         String numberList = salesTop10s.stream()
                 .map(s -> s.getNumber().toString())

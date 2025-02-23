@@ -1,12 +1,11 @@
 package com.crazy.mapper;
 
-import com.crazy.dto.GoodsSalesTop10;
+import com.crazy.dto.GoodsSalesDTO;
 import com.crazy.dto.OrderSearchDTO;
 import com.crazy.entity.Orders;
 import com.crazy.vo.OrderDetailVO;
 import com.crazy.vo.OrderSearchVO;
 import com.github.pagehelper.Page;
-import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -41,5 +40,5 @@ public interface OrderMapper {
 
     Integer countByMap(Map<String, Object> map);
 
-    List<GoodsSalesTop10> getSalesTop10(LocalDateTime begin, LocalDateTime end);
+    List<GoodsSalesDTO> getSalesTop10(LocalDateTime begin, LocalDateTime end);
 }
